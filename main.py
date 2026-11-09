@@ -44,3 +44,16 @@ class FeedForward(nn.Module):
 
     def __call__(self, x):
         return self.down_proj(nn.silu(self.gate_proj(x)) * self.up_proj(x))
+
+class Block(nn.Module):
+    def __init__(self, n_head):
+        super().__init__()
+        self.sa = MultiHeadAttention(n_head, n_embd // n_head)
+        self.ffwd = FeedForward()
+        self.ln1 = nn.RMSNorm(n_embd)
+        self.ln2 = nn.RMSNorm(n_embd)
+
+    def __call__(self, x):
+        x = x + self.sa(self.ln1(x))
+        x = x + self.ffwd(self.ln2(x))
+        return x
