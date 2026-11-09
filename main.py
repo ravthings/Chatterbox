@@ -33,3 +33,14 @@ class MultiHeadAttention(nn.Module):
 
     def __call__(self, x):
         return self.proj(mx.concatenate([h(x) for h in self.heads], axis=-1))
+
+class FeedForward(nn.Module):
+    def __init__(self):
+        super().__init__()
+        hidden = 4 * n_embd * 2 // 3
+        self.gate_proj = nn.Linear(n_embd, hidden, bias=False)
+        self.up_proj   = nn.Linear(n_embd, hidden, bias=False)
+        self.down_proj = nn.Linear(hidden, n_embd, bias=False)
+
+    def __call__(self, x):
+        return self.down_proj(nn.silu(self.gate_proj(x)) * self.up_proj(x))
