@@ -57,3 +57,16 @@ class Block(nn.Module):
         x = x + self.sa(self.ln1(x))
         x = x + self.ffwd(self.ln2(x))
         return x
+
+class TinyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tok_emb = nn.Embedding(vocab_size, n_embd)
+        self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])
+        self.ln_f = nn.RMSNorm(n_embd)
+
+    def __call__(self, idx):
+        x = self.tok_emb(idx)
+        x = self.blocks(x)
+        x = self.ln_f(x)
+        return self.tok_emb.as_linear(x)
