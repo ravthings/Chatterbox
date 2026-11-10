@@ -1,0 +1,7 @@
+FROM ./chatterbox.gguf
+TEMPLATE """User: {{ .Prompt }}
+Bot:"""
+PARAMETER stop "<|endoftext|>"
+PARAMETER stop "User:"
+PARAMETER temperature 0.7
+PARAMETER num_ctx 128
