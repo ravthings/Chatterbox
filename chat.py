@@ -10,7 +10,7 @@ ds = load_dataset("HuggingFaceTB/everyday-conversations-llama3.1-2k", split="tra
 examples, seen, too_long = [], set(), 0
 for row in ds:
     msgs = row["messages"]
-    for i in range(0, len(msgs) - 1, 2):# each user message + the bot's answer
+    for i in range(len(msgs) - 1):
         user, bot = msgs[i], msgs[i + 1]
         if user["role"] != "user" or bot["role"] != "assistant":
             continue
@@ -25,3 +25,5 @@ for row in ds:
             too_long += 1
             continue
         examples.append({"prompt": prompt, "reply": reply})
+
+
