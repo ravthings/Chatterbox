@@ -60,15 +60,16 @@ optimizer = optim.AdamW(learning_rate=3e-4, weight_decay=0.05)
 loss_and_grad = nn.value_and_grad(model, loss_fn)
 batch_size = 32
 
-for step in range(1000):
+epochs = int(input("How many epochs would you like to train for? "))
+for epoch in range(epochs):
     x, y, m = make_batch(random.sample(train_data, batch_size))
     loss, grads = loss_and_grad(model, x, y, m)
     optimizer.update(model, grads)
     mx.eval(model.parameters(), optimizer.state)
 
-    if step % 100 == 0:
+    if epoch % 100 == 0:
         vx, vy, vm = make_batch(random.sample(val_data, 64))
-        print(f"step {step}: train {loss.item():.3f}, val {loss_fn(model, vx, vy, vm).item():.3f}")
+        print(f"Epoch {epoch}: train {loss.item():.3f}, val {loss_fn(model, vx, vy, vm).item():.3f}")
 
 model.save_weights("chatterbox.safetensors")
 print("saved chatterbox.safetensors\n")
