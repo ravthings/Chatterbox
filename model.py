@@ -65,7 +65,7 @@ class TinyModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
-        self.blocks = nn.Sequential(*[Block(n_head=4) for _ in range(4)])
+        self.blocks = nn.Sequential(*[Block(n_head) for _ in range(n_layer)])
         self.ln_f = nn.RMSNorm(n_embd)
 
     def __call__(self, idx):
