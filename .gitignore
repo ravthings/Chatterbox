@@ -1,4 +1,6 @@
 *.safetensors
 *.json
 *.gguf
+*.txt
+*.npy
 export/

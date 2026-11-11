@@ -2,8 +2,11 @@ import mlx.core as mx
 import mlx.nn as nn
 
 vocab_size = 50257
-block_size = 128
-n_embd = 128
+block_size = 256      # was 128: longer memory
+n_embd = 256          # was 128: wider
+n_layer = 6           # was 4: deeper
+n_head = 8            # was 4: more heads (each still 32 wide)
+
 
 class Head(nn.Module):
     def __init__(self, head_size):
