@@ -44,8 +44,8 @@ if os.path.exists(save_file):
     model.load_weights(save_file)
     print("Resuming from", save_file)
 
-steps = int(input("How many steps? "))
-warmup = min(200, steps // 10)
+epochs = int(input("How many steps? "))
+warmup = min(200, epochs // 10)
 lr = optim.join_schedules(                                         # speed-up 2: warm up, then slowly lower the learning rate
     [optim.linear_schedule(1e-5, 1e-3, warmup), optim.cosine_decay(1e-3, steps - warmup, 1e-4)],
     [warmup])
@@ -61,18 +61,18 @@ def train_step(x, y):
     return loss
 
 t0 = time.time()
-for step in range(steps):
+for epoch in range(epochs):
     x, y = get_batch(st_tr, cr_tr)
     loss = train_step(x, y)
     mx.eval(state)
 
-    if step % 250 == 0:
+    if epoch % 250 == 0:
         xs, ys = sample(st_va, 32)
         xc, yc = sample(cr_va, 32)
-        secs = (time.time() - t0) / (step + 1)
-        print(f"step {step}: train {loss.item():.3f} | val stories {loss_fn(model, xs, ys).item():.3f} "
+        secs = (time.time() - t0) / (epoch + 1)
+        print(f"step {epoch}: train {loss.item():.3f} | val stories {loss_fn(model, xs, ys).item():.3f} "
               f"| val cricket {loss_fn(model, xc, yc).item():.3f} | {secs:.2f}s/step")
-    if step % 1000 == 0 and step > 0:
+    if epoch % 1000 == 0 and epoch > 0:
         model.save_weights(save_file)                              # save every 1000 steps, just in case
 
 model.save_weights(save_file)
