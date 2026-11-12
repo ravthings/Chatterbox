@@ -3,4 +3,5 @@
 *.gguf
 *.txt
 *.npy
+*.txt
 export/

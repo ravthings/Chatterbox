@@ -30,8 +30,8 @@ def sample(d, n):
     return chunk[:, :-1], chunk[:, 1:]
 
 def get_batch(stories_d, cricket_d):
-    xs, ys = sample(stories_d, batch_size // 2)    # half stories
-    xc, yc = sample(cricket_d, batch_size // 2)    # half cricket
+    xs, ys = sample(stories_d, batch_size * 3 // 4)    # 24 stories
+    xc, yc = sample(cricket_d, batch_size // 4)        # 8 cricket
     return mx.concatenate([xs, xc]), mx.concatenate([ys, yc])
 
 def loss_fn(model, x, y):
