@@ -44,10 +44,10 @@ if os.path.exists(save_file):
     model.load_weights(save_file)
     print("Resuming from", save_file)
 
-epochs = int(input("How many steps? "))
+epochs = int(input("How many epochs? "))
 warmup = min(200, epochs // 10)
 lr = optim.join_schedules(                                         # speed-up 2: warm up, then slowly lower the learning rate
-    [optim.linear_schedule(1e-5, 1e-3, warmup), optim.cosine_decay(1e-3, steps - warmup, 1e-4)],
+    [optim.linear_schedule(1e-5, 1e-3, warmup), optim.cosine_decay(1e-3, epochs - warmup, 1e-4)],
     [warmup])
 optimizer = optim.AdamW(learning_rate=lr, weight_decay=0.05)
 loss_and_grad = nn.value_and_grad(model, loss_fn)
@@ -73,7 +73,7 @@ for epoch in range(epochs):
         print(f"step {epoch}: train {loss.item():.3f} | val stories {loss_fn(model, xs, ys).item():.3f} "
               f"| val cricket {loss_fn(model, xc, yc).item():.3f} | {secs:.2f}s/step")
     if epoch % 1000 == 0 and epoch > 0:
-        model.save_weights(save_file)                              # save every 1000 steps, just in case
+        model.save_weights(save_file)# save every 1000 steps, just in case
 
 model.save_weights(save_file)
 print("saved", save_file)
