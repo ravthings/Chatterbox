@@ -19,11 +19,13 @@ PROMPT = """Here is some text about cricket:
 
 {text}
 
-Write 3 questions a curious kid might ask about cricket, and answer each one using ONLY facts from the text above.
+Write up to 3 question-and-answer pairs that a cricket fan might ask a chatbot.
 Rules:
-- Each answer is 1 to 3 short, simple sentences.
-- Questions must make sense on their own (never say "the text" or "the passage").
-- If the text has no useful facts, return an empty list.
+- Only use facts stated in the text above.
+- Each question must make sense with no other context: name the player, team, match or year it is about. Never say "the text", "the match" or "he".
+- Prefer important, general facts: rules, famous players, records, how the game works. Skip ball-by-ball scores and minor tournament details.
+- Each answer is 1 to 3 complete sentences that mention the subject again. Never answer with just a number.
+- If there are no good facts, return an empty list.
 Reply in JSON: {{"pairs": [{{"q": "...", "a": "..."}}]}}"""
 
 def ask(text):
@@ -55,7 +57,7 @@ with open(OUT, "a") as out:
             continue
         for p in pairs:
             q, a = str(p.get("q", "")).strip(), str(p.get("a", "")).strip()
-            if q and a:
+            if len(q.split()) >= 4 and len(a.split()) >= 6 and a.lower() not in q.lower():
                 out.write(json.dumps({"chunk": i, "q": q, "a": a}) + "\n")
                 total += 1
         out.flush()
