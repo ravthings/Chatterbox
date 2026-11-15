@@ -32,7 +32,7 @@ def ask(text):
     body = json.dumps({
         "model": MODEL, "stream": False, "format": "json",
         "messages": [{"role": "user", "content": PROMPT.format(text=text)}],
-        "options": {"temperature": 0.7, "num_predict": 400},
+        "options": {"temperature": 0.7, "num_predict": 600},
     }).encode()
     req = urllib.request.Request("http://localhost:11434/api/chat", data=body,
                                  headers={"Content-Type": "application/json"})
@@ -55,7 +55,11 @@ with open(OUT, "a") as out:
         except Exception as e:
             print("skip", i, e)
             continue
+        if not isinstance(pairs, list):
+            pairs = []
         for p in pairs:
+            if not isinstance(p, dict):
+                continue                      # skip weird replies instead of crashing
             q, a = str(p.get("q", "")).strip(), str(p.get("a", "")).strip()
             if len(q.split()) >= 4 and 6 <= len(a.split()) <= 50 and a.lower() not in q.lower():
                 out.write(json.dumps({"chunk": i, "q": q, "a": a}) + "\n")
