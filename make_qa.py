@@ -12,8 +12,6 @@ for l in lines:
     if len(cur) > 1200:
         chunks.append(cur)
         cur = ""
-random.seed(0)
-random.shuffle(chunks)                     # so we cover lots of different pages
 
 PROMPT = """Here is some text about cricket:
 
@@ -26,13 +24,15 @@ Rules:
 - Prefer important, general facts: rules, famous players, records, how the game works. Skip ball-by-ball scores and minor tournament details.
 - Each answer is 1 to 3 complete sentences that mention the subject again. Never answer with just a number.
 - If there are no good facts, return an empty list.
+- Answers contain ONLY facts from the text: no opinions, praise or extra commentary.
+- Keep each answer under 40 words.
 Reply in JSON: {{"pairs": [{{"q": "...", "a": "..."}}]}}"""
 
 def ask(text):
     body = json.dumps({
         "model": MODEL, "stream": False, "format": "json",
         "messages": [{"role": "user", "content": PROMPT.format(text=text)}],
-        "options": {"temperature": 0.7},
+        "options": {"temperature": 0.7, "num_predict": 400},
     }).encode()
     req = urllib.request.Request("http://localhost:11434/api/chat", data=body,
                                  headers={"Content-Type": "application/json"})
@@ -57,7 +57,7 @@ with open(OUT, "a") as out:
             continue
         for p in pairs:
             q, a = str(p.get("q", "")).strip(), str(p.get("a", "")).strip()
-            if len(q.split()) >= 4 and len(a.split()) >= 6 and a.lower() not in q.lower():
+            if len(q.split()) >= 4 and 6 <= len(a.split()) <= 50 and a.lower() not in q.lower():
                 out.write(json.dumps({"chunk": i, "q": q, "a": a}) + "\n")
                 total += 1
         out.flush()
