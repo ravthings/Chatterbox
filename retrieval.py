@@ -1,8 +1,9 @@
 import math, re
 from collections import Counter, defaultdict
 
-STOP = set("the a an of in on at to for is was were are who what which when where how did does do "
-           "by with and or from that this as be has have had it its his her their can you me i".split())
+STOP = set("the a an of in on at to for is was were are who what which when where how did does do by with and or from that this as be has have had it its his her their can you me i by with and or from that this as be has have had it its his her their can you me i many much tell about".split())
+           
+           
 
 def words(t):
     return [w for w in re.findall(r"[a-z0-9']+", t.lower()) if w not in STOP and len(w) > 1]
@@ -21,6 +22,9 @@ class Retriever:
             cur += s + " "
         if cur:
             self.passages.append(cur.strip())
+            JUNK = ["isbn", "retrieved", "archived", "doi:", "cricinfo", "on facebook",
+                    "on youtube", "external links", "further reading", "wisden india"]
+            self.passages = [p for p in self.passages if not any(j in p.lower() for j in JUNK)]           
 
         # 2. build an index: word -> which passages contain it, and how often
         self.index = defaultdict(list)
@@ -43,6 +47,11 @@ class Retriever:
             for i, tf in postings:
                 L = self.lengths[i]
                 scores[i] += idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * L / self.avg))
+                # bonus: passages that START with the question's keywords are usually ABOUT it
+        qw = set(words(query))
+        for i in list(scores):
+            head = set(words(self.passages[i][:80]))
+            scores[i] += 2.0 * sum(1 for w in qw if w in head)
         return [(self.passages[i], s) for i, s in scores.most_common(k)]
 
 if __name__ == "__main__":
